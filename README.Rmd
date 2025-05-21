@@ -7,7 +7,7 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file, but only with package maintainer's permission -->
   
-# MoveRakeR
+# RakeRvis
 
 ### Current version: 0.0.0.9000
 

@@ -4185,6 +4185,7 @@ server <- function(input, output, session){
               # Build legend
               # ---------------------------------------------- #
 
+
               if(variable_type == "category"){
 
                 # sort the values if integer, otherwise orders are all messed up (as they are also on leaflet actually)
@@ -4207,22 +4208,18 @@ server <- function(input, output, session){
                   }
                   pal <- pal_use$this
 
-                }
+                  if(check_pal_type == "character" & check_data_type == "numeric"){
+                    variable_type <- "numeric" # should be
 
-                # still an issue with mismatching reactive length? posixct issues
-                if(length(uniq_vals) != length(unique(pal(uniq_vals)))){
-
-                  if(check_data_type == "POSIXct"){
-                    # plot as numeric ramp for now
-
+                    # then we need numeric and something is out of sync
                     mn = min(VAL, na.rm=TRUE)
                     mx = max(VAL,na.rm=TRUE)
                     ra = mx-mn
                     levs = c(0,0.2,0.4,0.6,0.8,1)
                     vals2use = (levs * ra)+mn
                     cols = pal(vals2use)
-
-                    vals2use_print <- as.Date(vals2use)
+                    #vals2use_print <- round(vals2use, 2)
+                    vals2use_print <- sprintf(paste0("%.",2,"f"), round(vals2use,2))
 
                     l1 <- mapdeck::legend_element(
                       variables = vals2use_print
@@ -4231,14 +4228,44 @@ server <- function(input, output, session){
                       , variable_type = variable_type
                       , title = plotdata$plot_by
                     )
+                  } else{
 
-                  } #else{
-                   # DO NOTHING
+                    # otherwise, continue character checks
 
-                  #}
+                    # still an issue with mismatching reactive length? posixct issues
+                    if(length(uniq_vals) != length(unique(pal(uniq_vals)))){
+
+                      if(check_data_type == "POSIXct"){
+                        # plot as numeric ramp for now
+
+                        mn = min(VAL, na.rm=TRUE)
+                        mx = max(VAL,na.rm=TRUE)
+                        ra = mx-mn
+                        levs = c(0,0.2,0.4,0.6,0.8,1)
+                        vals2use = (levs * ra)+mn
+                        cols = pal(vals2use)
+
+                        vals2use_print <- as.Date(vals2use)
+
+                        l1 <- mapdeck::legend_element(
+                          variables = vals2use_print
+                          , colours = cols
+                          , colour_type = "fill"
+                          , variable_type = variable_type
+                          , title = plotdata$plot_by
+                        )
+
+                      } #else{
+                      # DO NOTHING
+
+                      #}
+                    }
+
+                  }
 
                 } else{
 
+                  # category
                   l1 <- mapdeck::legend_element(
                     variables = uniq_vals
                     , colours = unique(pal(uniq_vals))
@@ -4268,6 +4295,7 @@ server <- function(input, output, session){
                 )
               }
 
+              #browser()
               js <- mapdeck_legend(l1)
               v$js <- js
               # ---------------------------------------------- #
@@ -4545,14 +4573,18 @@ server <- function(input, output, session){
             ra = mx-mn
             levs = c(0,0.2,0.4,0.6,0.8,1)
             vals2use = (levs * ra)+mn
+            cols = pal(vals2use)
+            #vals2use_print <- round(vals2use, 2)
+            vals2use_print <- sprintf(paste0("%.",2,"f"), round(vals2use,2))
 
             l1 <- mapdeck::legend_element(
-              variables = vals2use
-              , colours = pal(vals2use)
+              variables = vals2use_print
+              , colours = cols
               , colour_type = "fill"
               , variable_type = variable_type
               , title = plotdata$plot_by
             )
+
           }
 
           js <- mapdeck_legend(l1)

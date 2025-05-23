@@ -3779,19 +3779,54 @@ server <- function(input, output, session){
           # selecting TagID at the start or further switches to TagID for plotting
           if(plotdata$plot_by == "TagID"){
 
+            #browser()
+
             # first use the animal colour palette
             pal <-  pal_use$anim
 
-            COL <- pal(onedata2[,which(names(onedata2) == "TagID")])
+            if(!is.null(pal)){
+              COL <- pal(onedata2[,which(names(onedata2) == "TagID")])
+            } else{
+
+              if(!is.null(input$builtin_pal)){
+                colour_module(inputs = input$builtin_pal, palette_type = "animal")
+                pal <-  pal_use$anim
+              } else if(!is.null(input$builtin_pal2)){
+                colour_module(inputs = input$builtin_pal2, palette_type = "animal")
+                pal <-  pal_use$anim
+              } else{
+                pal <- leaflet::colorFactor(palette =  c("red","blue","green"), domain = onedata2[,which(names(onedata2) == "TagID")])
+              }
+
+              COL <- pal(onedata2[,which(names(onedata2) == "TagID")])
+            }
 
           }
 
           # if not TagID for level plotting by variable...
           if(plotdata$plot_by != "TagID"){
 
-
             # first use the variable-specific colour palette
             pal <-  pal_use$variable
+
+            if(!is.null(pal)){
+              COL <- pal(onedata2[,which(names(onedata2) %in% plotdata$plot_by)])
+            } else{
+
+              if(!is.null(input$builtin_pal)){
+                colour_module(inputs = input$builtin_pal, palette_type = "variable")
+                pal <-  pal_use$anim
+              } else if(!is.null(input$builtin_pal2)){
+                colour_module(inputs = input$builtin_pal2, palette_type = "variable")
+                pal <-  pal_use$anim
+              } else{
+                pal <- leaflet::colorFactor(palette =  c("red","blue","green"), domain = onedata2[,which(names(onedata2) %in% plotdata$plot_by)])
+              }
+
+              COL <- pal(onedata2[,which(names(onedata2) %in% plotdata$plot_by)])
+
+            }
+
             COL <- pal(onedata2[,which(names(onedata2) == plotdata$plot_by)])
             #COL <- pal(onedata2[,which(names(onedata2) == input$plot_by)])
 

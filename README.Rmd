@@ -9,7 +9,7 @@ output: github_document
   
 # RakeRvis
 
-### Current version: 0.0.0.9000
+### Current version: 1.0.0
 
 The `RakeRvis` package is a Shiny app to support `MoveRakeR`. This is an initial release and is subject to ongoing tests and updates. More detailed instructions will be added in due course.
 
@@ -24,7 +24,7 @@ devtools::install_github('BritishTrustForOrnithology/RakeRvis', build_vignettes 
 ## Dependencies
 `RakeRvis` needs `MoveRakeR` installed to function correctly. In addition the following packages are required:
 
-shiny, shinydashboard, shinyBS, shinyjs, shinybusy, shinyWidgets, htmltools, leaflet, leafgl, leaflet.extras2, sfheaders, sf, data.table, DT, dplyr, markdown, and leaflegend
+shiny, shinydashboard, shinyBS, shinyjs, shinybusy, shinyWidgets, htmltools, leaflet, leafgl, leaflet.extras2, sfheaders, sf, data.table, DT, dplyr, markdown, mapdeck and leaflegend
 
 ## Usage
 

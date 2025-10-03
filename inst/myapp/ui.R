@@ -30,26 +30,26 @@ sidebar <- shinydashboard::dashboardSidebar(
         shinydashboard::menuItem("Plot by", tabName = "map", icon = shiny::icon("map-marked"), startExpanded = TRUE, selected = TRUE,
             shinydashboard::menuItem(shiny::uiOutput("plot_by"),tabName = "map", selected = TRUE)
         ),
-        shinydashboard::menuItem("Display relocations and lines", tabName = "map", icon = shiny::icon("map-marker-alt"), startExpanded = FALSE, selected = TRUE,
-           # see below comments under external point layers - directly putting in UI rather than server side render
-           shinyWidgets::awesomeCheckbox(
-             inputId = "ptog",
-             label = "Fixes",
-             value = TRUE,
-             status = "danger"
-           ),
-           shinyWidgets::awesomeCheckbox(
-             inputId = "ltog",
-             label = "Lines",
-             value = TRUE,
-             status = "danger"
-           )
-        ),
-        shinydashboard::menuItem("Clear map", tabName = "map", icon = shiny::icon("folder"), startExpanded = FALSE,
-           shinydashboard::menuItem(
-            shiny::actionButton("clear"," Clear map", icon = shiny::icon("eraser"))
-           )
-        ),
+        #shinydashboard::menuItem("Display relocations and lines", tabName = "map", icon = shiny::icon("map-marker-alt"), startExpanded = FALSE, selected = TRUE,
+        #   # see below comments under external point layers - directly putting in UI rather than server side render
+        #   shinyWidgets::awesomeCheckbox(
+        #     inputId = "ptog",
+        #     label = "Fixes",
+        #     value = TRUE,
+        #     status = "danger"
+        #   ),
+        #   shinyWidgets::awesomeCheckbox(
+        #     inputId = "ltog",
+        #     label = "Lines",
+        #     value = TRUE,
+        #     status = "danger"
+        #   )
+        #),
+        #shinydashboard::menuItem("Clear map", tabName = "map", icon = shiny::icon("folder"), startExpanded = FALSE,
+        #   shinydashboard::menuItem(
+        #    shiny::actionButton("clear"," Clear map", icon = shiny::icon("eraser"))
+        #   )
+        #),
         shinydashboard::menuItem("Shapefiles", tabName = "map", icon = shiny::icon("draw-polygon"), startExpanded = FALSE,
           shinydashboard::menuItem(shiny::uiOutput("shape"), tabName = "map", selected = TRUE)
         ),
@@ -72,12 +72,12 @@ sidebar <- shinydashboard::dashboardSidebar(
                               # for other stuff in the secondY
      ),
      #shinyBS::bsTooltip("access", "Download data from MoveBank or UvA-BiTS here.", "right", options = list(container = "body")),
-     shinydashboard::menuItem("Data analytics", tabName = "data_analytics", icon = shiny::icon("chart-pie"), startExpanded = FALSE
-     ),
+     #shinydashboard::menuItem("Data analytics", tabName = "data_analytics", icon = shiny::icon("chart-pie"), startExpanded = FALSE
+     #),
      #shinyBS::bsTooltip("data_analytics", "Not yet implemented.", "right", options = list(container = "body")),
-     shinydashboard::menuItem("Explorer ", tabName = "explorer", icon = shiny::icon("wpexplorer")
-                              # for other stuff in the secondY
-     ),
+     #shinydashboard::menuItem("Explorer ", tabName = "explorer", icon = shiny::icon("wpexplorer")
+     #                          # for other stuff in the secondY
+     #),
      shiny::actionButton('switchtab', 'Main map'),
      shinyBS::bsTooltip("switchtab", "Switch to main map.",
                         "right", options = list(container = "body")),
@@ -298,6 +298,59 @@ body <- shinydashboard::dashboardBody(
                   )
                 )
               ),
+              ######### a more general setting menu for point line size and opacities
+              div(style="display: inline-block;vertical-align:top; width: 45px",
+                  shiny::column(1,
+                                shinyWidgets::dropdown(
+                                  inputId = "nn100",
+                                  div(
+                                    style = "display: flex; gap: 10px;",  # side by side with space
+                                    shinyWidgets::awesomeCheckbox(
+                                      inputId = "ptog",
+                                      label = "Fixes",
+                                      value = TRUE,
+                                      status = "danger"
+                                    ),
+                                    shinyWidgets::awesomeCheckbox(
+                                      inputId = "ltog",
+                                      label = "Lines",
+                                      value = TRUE,
+                                      status = "danger"
+                                    ),
+                                    shiny::actionButton("clear"," Clear map", icon = shiny::icon("eraser"))
+                                  ),
+                                  shiny::textInput("time_slider_format", label='Format slider ticks', value = "%Y-%m-%d", width = '100%'),
+                                  shiny::sliderInput(inputId = "Slider_radius",
+                                                     label = "Fix radius",
+                                                     #value = 8, min = 1, max = 20 # mapbox defaults
+                                                     value = 5, min = 1, max = 20 # leaflet defaults
+                                  ),
+                                  shiny::sliderInput(inputId = "Slider_opacity",
+                                                     label = "Fix opacity",
+                                                     value = 0.5, min = 0.1, max = 1
+                                  ),
+                                  shiny::sliderInput(inputId = "line_opacity",
+                                                     label = "Line opacity",
+                                                     value = 0.5, min = 0.1, max = 1
+                                  ),
+                                  shiny::sliderInput(inputId = "line_width",
+                                                     label = "Line width",
+                                                     #value = 0.1, min = 0.005, max = 8 # mapbox defaults
+                                                     value = 1.5, min = 0.005, max = 8 # leaflet defaults
+                                  ),
+                                  if(!is.null(points)) {
+                                    tagList(
+                                      shiny::sliderInput("Slider_radius_p", label = "Circle marker radius", value = 4, min = 1, max = 15),
+                                      shiny::sliderInput("Slider_opacity_p", label = "Circle marker opacity", value = 0.5, min = 0.1, max = 1)
+                                    )
+                                  },
+                                  shiny::selectInput("scene", "Select Scene for map print", choices = c("CurrentSize", "A4Landscape", "A4Portrait"), width = "180px"),
+                                  style = "unite",
+                                  icon = icon("cog"),
+                                  status = "royal", width = "300px"
+                                )
+                  )
+              ),
               #### map layer, zoom, legend and scale bar
               div(style="display: inline-block;vertical-align:top; width: 45px;",
               shiny::column(1,
@@ -365,6 +418,7 @@ body <- shinydashboard::dashboardBody(
                  )
                )
               ),
+
               ######################
               # more detailed settings MAP SAVING AND LINES/POINTS leafgl vs leaflet
               # there are issues I've found with glpolylines not rendering as it should - not sure why
@@ -784,6 +838,7 @@ body <- shinydashboard::dashboardBody(
                     )
                 )
               ),
+
               ####### A final help menu that will contain the rendered html file
               div(style="display: inline-block;vertical-align:top; width: 45px; margin-left: 10px",
                   shiny::column(1,
@@ -836,72 +891,50 @@ body <- shinydashboard::dashboardBody(
             shiny::actionButton('reset_lines', 'Reset lines'),
             shinyBS::bsTooltip("reset_lines", "Sometimes line ids can be lost: this reloads them.",
                                "bottom", options = list(container = "body")),
+            shiny::actionButton("print", "Print Map"),
+            shinyBS::bsTooltip("print", "Print map use settings cog to select scene size",
+                               "bottom", options = list(container = "body")),
             ##if(!Mapdeck){
             ##  leafgl::leafglOutput("mymap", width = "100%", height = 800)
             ##} else{
             ##}
 
-            selectInput("scene", "Select Scene", choices = c("CurrentSize", "A4Landscape", "A4Portrait")),
-            actionButton("print", "Print Map"),
+            #div(
+            #  style = "display: flex; align-items: center; gap: 10px;",  # flex layout
+            #  div(style = "flex: 0 0 auto;",  # prevents select from stretching
+            #      shiny::selectInput("scene", "Select Scene", choices = c("CurrentSize", "A4Landscape", "A4Portrait"), width = "180px")
+            #  ),
+            #  div(style = "flex: 0 0 auto;",
+            #      shiny::actionButton("print", "Print Map")
+            #  )
+            #),
 
             # ------------------------------------------------------------- #
-
+            # spacer row
             shiny::fluidRow(
-              shinydashboard::box(title = "Lines and markers", width = 12,
-                 status="primary",collapsible = TRUE,
-                 solidHeader = TRUE,
-                 #background = "navy",
-                 shiny::column(12,
-                    shiny::uiOutput("slider"),
-                      shiny::fluidRow(
-                        shiny::column(6,
-                          shiny::sliderInput(inputId = "Slider_radius",
-                             label = "Fix radius",
-                             #value = 8, min = 1, max = 20 # mapbox defaults
-                             value = 5, min = 1, max = 20 # leaflet defaults
-                          )
-                        ),
-                        shiny::column(6,
-                          shiny::sliderInput(inputId = "Slider_opacity",
-                             label = "Fix opacity",
-                             value = 0.5, min = 0.1, max = 1
-                          )
-                        )
-                      ),
-                      shiny::fluidRow(
-                        shiny::column(6,
-                          shiny::sliderInput(inputId = "line_opacity",
-                             label = "Line opacity",
-                             value = 0.5, min = 0.1, max = 1
-                          )
-                        ),
-                        shiny::column(6,
-                          shiny::sliderInput(inputId = "line_width",
-                             label = "Line width",
-                             #value = 0.1, min = 0.005, max = 8 # mapbox defaults
-                             value = 1.5, min = 0.005, max = 8 # leaflet defaults
-                          )
-                        )
-                      ),
-                      if(!is.null(points)){
-                        shiny::fluidRow(
-                          shiny::column(6,
-                            shiny::sliderInput(inputId = "Slider_radius_p",
-                               label = "Circle marker radius",
-                               value = 4, min = 1, max = 15
-                            )
-                          ),
-                          shiny::column(6,
-                            shiny::sliderInput(inputId = "Slider_opacity_p",
-                               label = "Circle marker opacity",
-                               value = 0.5, min = 0.1, max = 1
-                            )
-                          )
-                        )
-                      }
-                    )
+              column(12,
+                     style = "height: 15px;"
+              )
+            ),
+            # ------------------------------------------------------------- #
+            # better format for time slider
+            shiny::fluidRow(
+              column(
+                12,
+                div(
+                  style = "
+                    background-color: rgba(255, 255, 255, 0.9);  /* subtle background */
+                    border: 1px solid #ccc;                       /* light border */
+                    border-radius: 8px;                           /* rounded corners */
+                    padding: 10px;                                /* spacing inside */
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);       /* subtle shadow */
+                    width: 100%;                                  /* fill the column */
+                  ",
+                  shiny::uiOutput("slider")
+                )
               )
             )
+            # ------------------------------------------------------------- #
           ), # tab panel "Main map"
 
           ###########################################################################################

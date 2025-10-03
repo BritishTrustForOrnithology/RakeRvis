@@ -124,8 +124,9 @@ RakeRvis <- function(data = NULL,
   }
 
   # ------------------------------------------------------------------------------ #
-  ###### FOR DEV TESTING
-  #appDir <- "Y:/R packages/RakeRvis/inst/myapp"
+  ##### FOR DEV TESTING
+  #appDir <- "C:/Users/thaxa/OneDrive/Documents/RakeRvis/inst/myapp"
+  ##appDir <- "Y:/R packages/RakeRvis/inst/myapp"
   #source(file.path(appDir,"global.R"), local = TRUE, chdir = TRUE)
   #source(file.path(appDir,"ui.R"), local = TRUE, chdir = TRUE)
   #source(file.path(appDir,"server.R"), local = TRUE, chdir = TRUE)

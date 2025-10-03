@@ -7,7 +7,7 @@ Chris Thaxter
 
 # RakeRvis
 
-### Current version: 0.0.0.9000
+### Current version: 1.0.0
 
 The `RakeRvis` package is a Shiny app to support `MoveRakeR`. This is an
 initial release and is subject to ongoing tests and updates. More
@@ -28,7 +28,7 @@ addition the following packages are required:
 
 shiny, shinydashboard, shinyBS, shinyjs, shinybusy, shinyWidgets,
 htmltools, leaflet, leafgl, leaflet.extras2, sfheaders, sf, data.table,
-DT, dplyr, markdown, and leaflegend
+DT, dplyr, markdown, mapdeck and leaflegend
 
 ## Usage
 

@@ -1,7 +1,7 @@
 Package: RakeRvis
 Type: Package
 Title: An R Shiny app for visualising GPS tracks from the MoveRakeR package.
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     person(given = "Chris",
            family = "Thaxter",
@@ -18,7 +18,7 @@ RoxygenNote: 7.3.2
 Imports: shiny, shinydashboard, shinyBS, shinyjs,
         shinybusy, shinyWidgets, htmltools, leaflet, leafgl,
         leaflet.extras2, sfheaders, sf, data.table,
-        DT, dplyr, markdown,leaflegend
+        DT, dplyr, markdown, leaflegend, mapdeck
 Suggests: knitr, rmarkdown, R.rsp
 VignetteBuilder: knitr, rmarkdown, R.rsp
 Maintainer: First Last <chris.thaxter@bto.org>

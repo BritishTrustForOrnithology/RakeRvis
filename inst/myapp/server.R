@@ -9,6 +9,7 @@ server <- function(input, output, session){
   appDir <- paste0(system.file("", package = "RakeRvis"),"/myapp/")
 
   # # # # # DEV TESTING
+  #appDir <- "C:/Users/thaxa/OneDrive/Documents/RakeRvis/inst/myapp/"
   #appDir <- "Y:/R packages/RakeRvis/inst/myapp"
 
   ##################################################################
@@ -1970,10 +1971,21 @@ server <- function(input, output, session){
 
       if(!is.null(onedat$onedata)){
 
+        #browser()
+        #max = as.Date(max(test$DateTime, na.rm = TRUE))
+        #min = as.Date(min(test$DateTime, na.rm = TRUE))
+        #value = as.Date(range(test$DateTime, na.rm = TRUE))
+
+        #if(max == min){
+          max = max(test$DateTime, na.rm = TRUE)
+          min = min(test$DateTime, na.rm = TRUE)
+          value = c(min,max)
+        #}
+
         sliderParams <- reactiveValues(
-          max = as.Date(max(test$DateTime, na.rm = TRUE)),
-          min = as.Date(min(test$DateTime, na.rm = TRUE)),
-          value = as.Date(range(test$DateTime, na.rm = TRUE)))
+          max = max,
+          min = min,
+          value = value)
 
         if(!is.null(slider_check_base$st) && !is.null(slider_check_base$en)){
 
@@ -1993,9 +2005,13 @@ server <- function(input, output, session){
 
         # placeholder range if nothing specified
         sliderParams <- reactiveValues(
-          max = as.Date("2014-05-01 12:00:00"),
-          min = as.Date("2014-07-01 12:00:00"),
-          value = as.Date(c("2014-05-01 12:00:00","2014-07-01 12:00:00")))
+          #max = as.Date("2014-05-01 12:00:00"),
+          #min = as.Date("2014-07-01 12:00:00"),
+          max = as.POSIXct("2014-05-01 12:00:00", tz = "UTC"),
+          min = as.POSIXct("2014-07-01 12:00:00", tz = "UTC"),
+          #value = as.Date(c("2014-05-01 12:00:00","2014-07-01 12:00:00"))
+          value = c(as.POSIXct("2014-05-01 12:00:00", tz = "UTC"), as.POSIXct("2014-07-01 12:00:00", tz = "UTC"))
+          )
       }
 
       output$slider <- shiny::renderUI({
@@ -2006,6 +2022,8 @@ server <- function(input, output, session){
                            value = sliderParams$value,
                            min = sliderParams$min,
                            max = sliderParams$max,
+                           #timeFormat = "%Y-%m-%d",
+                           timeFormat = input$time_slider_format,
                            width = "100%")
 
       })
@@ -3120,7 +3138,8 @@ server <- function(input, output, session){
       if(any(plotdata$TagID %in% onedat$onedata$TagID) | any(plotdata$TagID == "All")){
 
         # is the min value of the slider >= to min of the bird, and same for max value
-        if(input$slider[1] >= as.Date(min(onedat$onedata$DateTime)) && input$slider[2] <= as.Date(max(onedat$onedata$DateTime))){
+        #if(input$slider[1] >= as.Date(min(onedat$onedata$DateTime)) && input$slider[2] <= as.Date(max(onedat$onedata$DateTime))){
+        if(input$slider[1] >= min(onedat$onedata$DateTime) && input$slider[2] <= max(onedat$onedata$DateTime)){
 
           ## THEN DO STUFF ...
 
@@ -3171,38 +3190,51 @@ server <- function(input, output, session){
           # TIME SLIDER OPTIONS
           # I know this is really verbose with repeated options but helped visualise
           # condition 1: are slider choices for st and en BOTH within the current TagID data?
-          if(input$slider[1] >= as.Date(min(data_3$DateTime)) && input$slider[2] <= as.Date(max(data_3$DateTime))){
+          #if(input$slider[1] >= as.Date(min(data_3$DateTime)) && input$slider[2] <= as.Date(max(data_3$DateTime))){
+          if(input$slider[1] >= min(data_3$DateTime) && input$slider[2] <= max(data_3$DateTime)){
 
-            data_4 <- data_3[as.Date(data_3$DateTime) >= input$slider[1] & as.Date(data_3$DateTime) <= input$slider[2],]
+            #data_4 <- data_3[as.Date(data_3$DateTime) >= input$slider[1] & as.Date(data_3$DateTime) <= input$slider[2],]
+            data_4 <- data_3[data_3$DateTime >= input$slider[1] & data_3$DateTime <= input$slider[2],]
             #plotdata$data2 <- data_4
             thedata_ <- data_4
 
           }
           # -------------- #
           # Condition 2: start of slider falls outside the data start range, but upper slider value is still within the data range
-          if(input$slider[1] < as.Date(min(data_3$DateTime)) && input$slider[2] <= as.Date(max(data_3$DateTime)) && input$slider[2] >= as.Date(min(data_3$DateTime))){
+          #if(input$slider[1] < as.Date(min(data_3$DateTime)) && input$slider[2] <= as.Date(max(data_3$DateTime)) && input$slider[2] >= as.Date(min(data_3$DateTime))){
+          if(input$slider[1] < min(data_3$DateTime) && input$slider[2] <= max(data_3$DateTime) && input$slider[2] >= min(data_3$DateTime)){
 
-            data_4 <- data_3[as.Date(data_3$DateTime) >= input$slider[1] & as.Date(data_3$DateTime) <= input$slider[2],]
+            #data_4 <- data_3[as.Date(data_3$DateTime) >= input$slider[1] & as.Date(data_3$DateTime) <= input$slider[2],]
+            data_4 <- data_3[data_3$DateTime >= input$slider[1] & data_3$DateTime <= input$slider[2],]
+
             #plotdata$data2 <- data_4
             thedata_ <- data_4
 
+            #min_ = min(as.Date(data_2$DateTime))
+            min_ = min(data_2$DateTime)
+
             updateSliderInput(session=session, inputId = "slider",
                               #value = c(as.Date(min(data_2$DateTime)), as.Date(max(data_2$DateTime))),
-                              min = as.Date(min(data_2$DateTime)), max = NULL,
+                              min = min_, max = NULL,
             )
           }
 
           # -------------- #
           # Condition 3: start of slider falls inside the data start range, but upper slider value is outside
-          if(input$slider[1] >= as.Date(min(data_3$DateTime)) && input$slider[1] <= as.Date(max(data_3$DateTime)) && input$slider[2] > as.Date(max(data_3$DateTime))){
+          #if(input$slider[1] >= as.Date(min(data_3$DateTime)) && input$slider[1] <= as.Date(max(data_3$DateTime)) && input$slider[2] > as.Date(max(data_3$DateTime))){
+          if(input$slider[1] >= min(data_3$DateTime) && input$slider[1] <= max(data_3$DateTime) && input$slider[2] > max(data_3$DateTime)){
 
-            data_4 <- data_3[as.Date(data_3$DateTime) >= input$slider[1] & as.Date(data_3$DateTime) <= input$slider[2],]
+            #data_4 <- data_3[as.Date(data_3$DateTime) >= input$slider[1] & as.Date(data_3$DateTime) <= input$slider[2],]
+            data_4 <- data_3[data_3$DateTime >= input$slider[1] & data_3$DateTime <= input$slider[2],]
             #plotdata$data2 <- data_4
             thedata_ <- data_4
 
+            #max_ = max(as.Date(data_2$DateTime))
+            max_ = max(data_2$DateTime)
+
             updateSliderInput(session=session, inputId = "slider",
                               #value = c(as.Date(min(data_2$DateTime)), as.Date(max(data_2$DateTime))),
-                              min = NULL, max = as.Date(max(data_2$DateTime)),
+                              min = NULL, max = max_,
             )
           }
 
@@ -3210,41 +3242,64 @@ server <- function(input, output, session){
           # (conditions 4 and 5 result in NO data from time slider choices)
 
           # Condition 4: both start and end are less than the min date in the data
-          if(input$slider[1] < as.Date(min(data_3$DateTime)) && input$slider[2] < as.Date(min(data_3$DateTime))){
+          #if(input$slider[1] < as.Date(min(data_3$DateTime)) && input$slider[2] < as.Date(min(data_3$DateTime))){
+          if(input$slider[1] < min(data_3$DateTime) && input$slider[2] < min(data_3$DateTime)){
 
             # therefore revert to full data, or last data plotted, i.e. NO UPDATE PASSED ON?
             #plotdata$data2 <- data_3
 
+            #min_ = min(as.Date(data_2$DateTime))
+            #max_ = max(as.Date(data_2$DateTime))
+            min_ = min(data_2$DateTime)
+            max_ = max(data_2$DateTime)
+
             updateSliderInput(session=session, inputId = "slider",
-                              value = c(as.Date(min(data_2$DateTime)), as.Date(max(data_2$DateTime))),
-                              min = as.Date(min(data_2$DateTime)), max = as.Date(max(data_2$DateTime)),
+                              value = value,
+                              min = min_, max = max_,
             )
 
           }
 
           # Condition 5: both start and end are greater than the max date in the data
-          if(input$slider[1] > as.Date(max(data_3$DateTime)) && input$slider[2] > as.Date(max(data_3$DateTime))){
+          #if(input$slider[1] > as.Date(max(data_3$DateTime)) && input$slider[2] > as.Date(max(data_3$DateTime))){
+          if(input$slider[1] > max(data_3$DateTime) && input$slider[2] > max(data_3$DateTime)){
 
             # therefore revert to full data, or last data plotted, i.e. NO UPDATE PASSED ON?
             #plotdata$data2 <- data_3
 
+            #min_ = min(as.Date(data_2$DateTime))
+            #max_ = max(as.Date(data_2$DateTime))
+            min_ = min(data_2$DateTime)
+            max_ = max(data_2$DateTime)
+
+            value = c(min_,max_)
+
             updateSliderInput(session=session, inputId = "slider",
-                              value = c(as.Date(min(data_2$DateTime)), as.Date(max(data_2$DateTime))),
-                              min = as.Date(min(data_2$DateTime)), max = as.Date(max(data_2$DateTime)),
+                              value = value,
+                              min = min_, max = max_,
             )
 
           }
           # Condition 6, forgot about this one, but start is before data and end is after, so technically in the range
 
-          if(input$slider[1] < as.Date(min(data_3$DateTime)) && input$slider[2] > as.Date(max(data_3$DateTime))){
+          #if(input$slider[1] < as.Date(min(data_3$DateTime)) && input$slider[2] > as.Date(max(data_3$DateTime))){
+          if(input$slider[1] < min(data_3$DateTime) && input$slider[2] > max(data_3$DateTime)){
 
-            data_4 <- data_3[as.Date(data_3$DateTime) >= input$slider[1] & as.Date(data_3$DateTime) <= input$slider[2],]
+            #min_ = min(as.Date(data_2$DateTime))
+            #max_ = max(as.Date(data_2$DateTime))
+
+            min_ = min(data_2$DateTime)
+            max_ = max(data_2$DateTime)
+
+            #data_4 <- data_3[as.Date(data_3$DateTime) >= input$slider[1] & as.Date(data_3$DateTime) <= input$slider[2],]
+            data_4 <- data_3[data_3$DateTime >= input$slider[1] & data_3$DateTime <= input$slider[2],]
+
             #plotdata$data2 <- data_4
             thedata_ <- data_4
 
             updateSliderInput(session=session, inputId = "slider",
-                              #value = c(as.Date(min(data_2$DateTime)), as.Date(max(data_2$DateTime))),
-                              min = as.Date(min(data_2$DateTime)), max = as.Date(max(data_2$DateTime)),
+                              #value = c(as.Date(min(data_2$DateTime)), as.Date(max(data_2$DateTime))), # was hashed out
+                              min = min_, max = max_,
             )
 
           }
@@ -3302,30 +3357,29 @@ server <- function(input, output, session){
   ################################################################################################################################
   ################################################################################################################################
 
-
   skipPlot <- reactiveVal(1) # lines
   skipPlot2 <- reactiveVal(1) # points
 
   #### first observe event of TagID, slider AND the shapes now (still need to do additional point layer in same way)
   shiny::observeEvent({
 
-    input$mapdeck_switch
-    thedata()
-    mymapExists()
-    #plotdata$data2
+    list(input$mapdeck_switch,
+         mymapExists(),
+         thedata(),
+         plotdata$data3,
 
-    plotdata$data3
-    input$ltog
-    input$line_opacity
-    input$line_width
-    #input$leaflet_method
-    input$leaflet_method
+         input$ltog,
+         input$line_opacity,
+         input$line_width,
+         input$leaflet_method,
+         input$reset_map,
 
-    input$reset_map
-    #skipPlot()
-    pal_use$this4lines
-    input$elev_toggle # specific to mapdeck for elevation toggle
-    input$reset_lines
+         #skipPlot()
+         pal_use$this4lines,
+         input$elev_toggle, # specific to mapdeck for elevation toggle
+         input$reset_lines
+         )
+
   },{
 
     # OK original kudos to this example: https://stackoverflow.com/questions/65839072/forcing-render-order-in-r-shiny
@@ -3548,6 +3602,7 @@ server <- function(input, output, session){
                   ###### addPolylines
                   if(input$leaflet_method == "leaflet"){
 
+
                     layerID <- paste0("foo",1:nrow(sp_lines))
 
                     leaflet::leafletProxy("mymap") %>%
@@ -3641,19 +3696,20 @@ server <- function(input, output, session){
 
   #### first observe event of TagID, slider AND the shapes now (still need to do additional point layer in same way)
   shiny::observeEvent({
-
-    input$mapdeck_switch
-    mymapExists()
-    #plotdata$data2
-    thedata()
-    plotdata$data3 # sqlfilter
-    input$ptog
-    input$Slider_radius
-    input$Slider_opacity
-    input$leaflet_method
-    input$reset_map
-    pal_use$this
-    input$elev_toggle # specific to mapdeck for elevation toggle
+    list(
+      input$mapdeck_switch,
+      mymapExists(),
+      #plotdata$data2
+      thedata(),
+      plotdata$data3, # sqlfilter
+      input$ptog,
+      input$Slider_radius,
+      input$Slider_opacity,
+      input$leaflet_method,
+      input$reset_map,
+      pal_use$this,
+      input$elev_toggle # specific to mapdeck for elevation toggle
+    )
 
   },{
 
@@ -3779,8 +3835,6 @@ server <- function(input, output, session){
           # selecting TagID at the start or further switches to TagID for plotting
           if(plotdata$plot_by == "TagID"){
 
-            #browser()
-
             # first use the animal colour palette
             pal <-  pal_use$anim
 
@@ -3898,6 +3952,7 @@ server <- function(input, output, session){
 
                   if(input$leaflet_method == "leafgl"){
 
+                    #browser()
                     leaflet::leafletProxy("mymap") %>%
                       leaflet::clearGroup(group = "two") %>%
                       leafgl::removeGlPoints(layerId = "two") %>%
@@ -4344,7 +4399,7 @@ server <- function(input, output, session){
               xx3 = as.numeric(paste(xx2, collapse = '', sep = ''))
 
               # Use add_legend if Cran v > 0.3.5
-              if(xx3 >= 35){
+              if(xx3 > 35){
 
                 ### WARNING THIS REQURES THE DEV VERSION OF mapdeck 0.3.6+ from github - the one on Cran as of 16/05/2025 does not have add_legend() and clear_legend()
                 mapdeck::mapdeck_update(map_id = "mymap_md") %>%
@@ -4380,7 +4435,7 @@ server <- function(input, output, session){
             xx2 = strsplit(xx,"[.]")[[1]]
             xx3 = as.numeric(paste(xx2, collapse = '', sep = ''))
 
-            if(xx3 >= 35){ # Cran current version is 0.3.5
+            if(xx3 > 35){ # Cran current version is 0.3.5
               mapdeck::mapdeck_update(map_id = "mymap_md") %>%
                 mapdeck::clear_legend(layer_id = paste0("legend_id",reactivetest$mapbox_legno-1)) %>%
                 mapdeck::clear_legend(layer_id = paste0("legend_id",reactivetest$mapbox_legno))
@@ -4634,8 +4689,9 @@ server <- function(input, output, session){
           xx2 = strsplit(xx,"[.]")[[1]]
           xx3 = as.numeric(paste(xx2, collapse = '', sep = ''))
 
+          #browser()
           # Use add_legend if Cran v > 0.3.5
-          if(xx3 >= 35){
+          if(xx3 > 35){
 
             ### WARNING THIS REQURES THE DEV VERSION OF mapdeck 0.3.6+ from github - the one on Cran as of 16/05/2025 does not have add_legend() and clear_legend()
             mapdeck::mapdeck_update(map_id = "mymap_md") %>%
@@ -5137,8 +5193,8 @@ server <- function(input, output, session){
   ##################################################################
   ##################################################################
   ##################################################################
-  source(file.path(appDir,"DataExplorerModule.R"), local = TRUE, chdir = TRUE)
-  DataExplorerModule()
+  #source(file.path(appDir,"DataExplorerModule.R"), local = TRUE, chdir = TRUE)
+  #DataExplorerModule()
 
   ##################################################################
   ##################################################################
